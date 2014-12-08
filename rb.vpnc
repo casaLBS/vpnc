@@ -1,0 +1,62 @@
+#!/usr/bin/ruby
+
+require 'pty'
+require 'expect'
+
+vpn_add = "mel-vpn.realestate.com.au"
+vpn_bin = "/opt/cisco/anyconnect/bin/vpn"
+notif_bin = "terminal-notifier"
+curr_path = File.dirname(__FILE__)+"/"
+uap_file = curr_path + ".uap"
+@avat_file = curr_path + 'avatar.png'
+alrdy = '"VPN is already connected. Click to disconnect."'
+begn = '"Begin to connect VPN..."'
+succ = '"Succeeded connecting VPN."'
+fail = '"Failed to connect VPN."'
+discon = '/opt/cisco/anyconnect/bin/vpn disconnect'
+
+def load_uap(uap_file)
+  f = File.open(uap_file)
+  f.readline
+  username = f.readline
+  password = f.readline
+  f.close
+  return username, password
+end
+
+def isConnected(vpn_bin)
+  `#{vpn_bin} state` =~ /state: Connected/
+end
+
+def notify(alrdy, notif_bin, exec = nil)
+  cmd = "#{notif_bin} -title VPNC -message #{alrdy} -appIcon #{@avat_file}"
+  if exec
+    cmd += " -execute " + exec
+  end
+  `#{cmd}`
+end
+
+if isConnected vpn_bin
+  notify(alrdy, notif_bin, discon)
+  # notify(alrdy, notif_bin)
+  exit
+end
+
+
+notify(begn, notif_bin)
+username, password = load_uap(uap_file)
+PTY.spawn("#{vpn_bin} -s connect #{vpn_add}") do |reader, writer|
+  reader.expect(/Group: \[.*\]/, 5)
+  writer.puts('1')
+  reader.expect(/Username: \[.*\]/, 5)
+  writer.puts(username)
+  reader.expect(/Password:/, 5)
+  writer.puts(password)
+  reader.expect(/Establishing VP123N\.\.\./, 5)
+end
+if isConnected vpn_bin
+  notify(succ, notif_bin)
+else
+  notify(fail, notif_bin)
+end
+
