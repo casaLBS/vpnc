@@ -1,0 +1,29 @@
+#!/usr/bin/ruby
+
+vpn_add = "mel-vpn.realestate.com.au"
+vpn_bin = "/opt/cisco/anyconnect/bin/vpn"
+notif_bin = "terminal-notifier"
+curr_path = File.dirname(__FILE__)+"/"
+@avat_file = curr_path + 'avatar.png'
+conectd = '"VPN status: connected."'
+not_conectd = '"VPN status: DISconnected."'
+
+def isConnected(vpn_bin)
+  `#{vpn_bin} state` =~ /state: Connected/
+end
+
+def notify(alrdy, notif_bin, exec = nil)
+  cmd = "#{notif_bin} -title VPNC -message #{alrdy} -appIcon #{@avat_file}"
+  if exec
+    cmd += " -execute " + exec
+  end
+  `#{cmd}`
+end
+
+if isConnected vpn_bin
+  notify(conectd, notif_bin)
+else
+  notify(not_conectd, notif_bin)
+end
+
+
