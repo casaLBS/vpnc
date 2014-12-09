@@ -6,7 +6,7 @@ notif_bin = "terminal-notifier"
 curr_path = File.dirname(__FILE__)+"/"
 @avat_file = curr_path + 'avatar.png'
 conectd = '"VPN status: connected."'
-not_conectd = '"VPN status: DISconnected."'
+not_conectd = '"VPN status: NOT connected."'
 
 def isConnected(vpn_bin)
   `#{vpn_bin} state` =~ /state: Connected/
