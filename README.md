@@ -18,7 +18,9 @@ run vpnc.sh to connect
 
 ====
 ###Ruby
-run rb.vpnc
+- run ``rbvpnc`` to connect
+- run ``svpnc`` to check state
+- run ``dvpnc`` to disconnect
 
 ====
 ###Phthon
